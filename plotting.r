@@ -2,16 +2,12 @@ library(shiny)
 library(tidyverse)
 library(dplyr)
 
-dataIMDB <- read_csv("D:\\Google Drive\\Uni\\Tilburg\\Semester 6\\Interactive Information Visualization\\Group Project\\dataPreprocessed.csv")
+dataIMDB <- read_csv("C:\\Users\\Lianne\\Documents\\IIV project\\dataPreprocessed.csv")
 
 dataIMBDclean <- na.omit(dataIMDB)
 
 averageYearGenre_1 <- group_by(dataIMBDclean, year, genre_1) %>% 
   summarize(average_score = mean(avg_vote)) 
-
-summary(dataIMBDclean)
-
-
 
 ui <- fluidPage(
   
@@ -22,29 +18,29 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       checkboxGroupInput("genresGroup",
-                  "Choose which genre to display:",
-                  choices = list("Action",
-                                 "Adult",
-                                 "Adventure",
-                                 "Animation",
-                                 "Biography",
-                                 "Comedy",
-                                 "Documentary",
-                                 "Drama",
-                                 "Family",
-                                 "Fantasy",
-                                 "Film-Noir",
-                                 "History",
-                                 "Horror",
-                                 "Music",
-                                 "Musical",
-                                 "Mystery",
-                                 "Romance",
-                                 "Sci-Fi",
-                                 "Thriller",
-                                 "War",
-                                 "Western"),
-                  selected = "Action")
+                         "Choose which genre to display:",
+                         choices = list("Action",
+                                        "Adult",
+                                        "Adventure",
+                                        "Animation",
+                                        "Biography",
+                                        "Comedy",
+                                        "Documentary",
+                                        "Drama",
+                                        "Family",
+                                        "Fantasy",
+                                        "Film-Noir",
+                                        "History",
+                                        "Horror",
+                                        "Music",
+                                        "Musical",
+                                        "Mystery",
+                                        "Romance",
+                                        "Sci-Fi",
+                                        "Thriller",
+                                        "War",
+                                        "Western"),
+                         selected = "Action")
     ),
     
     # Show a plot of the generated distribution
@@ -54,16 +50,20 @@ ui <- fluidPage(
   )
 )
 
-
-server <- function(input, output, session) {
-  
+server <- function(input, output) {
   output$plotOutputName <- renderPlot({
-    plotThing %>%
-      ggplot(data = averageYearGenre_1, mapping = aes(x = year, y = average_score, color = genre_1)) +
-      geom_line()
+    plotThing %>% ggplot(data = averageYearGenre_1, mapping = aes(x = year, y = average_score, color = genre_1)) +
+        geom_line() + 
+        theme_minimal() +
+        labs(
+          x = "Year",
+          y = "Average score",
+          color = "Gerne",
+          title = "The average score per Genre per Year",
+          subtitle = "Subtitle")
+          ggplotly(Interactive_plotOutputName)
   })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
 
