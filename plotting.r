@@ -19,10 +19,9 @@ ui <- fluidPage(
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-      checkboxGroupInput("genresGroup",
+      checkboxGroupInput("genresGroup1",
                          "Choose which genre to display:",
                          choices = list("Action",
-                                        "Adult",
                                         "Adventure",
                                         "Animation",
                                         "Biography",
@@ -42,7 +41,6 @@ ui <- fluidPage(
                                         "War",
                                         "Western"),
                          selected = "Action"),
-      
       sliderInput("range", 
                   label = "Choose a start and end year:",
                   min = min(averageYearGenre_1$year), max = max(averageYearGenre_1$year), value = c(min(averageYearGenre_1$year), max(averageYearGenre_1$year)), sep = "",)
@@ -51,7 +49,7 @@ ui <- fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("plotOutputName")
+      plotlyOutput("plotOutputName")
     )
   )
 )
@@ -59,13 +57,14 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   tempData <- reactive({
-    filter(averageYearGenre_1, genre_1 %in% input$genresGroup & year >= input$range[1] & year <= input$range[2])
+    filter(averageYearGenre_1, genre_1 %in% input$genresGroup1 & year >= input$range[1] & year <= input$range[2])
   })
   
-  output$plotOutputName <- renderPlot({
-    plotThing %>% ggplot(data = tempData(), mapping = aes(x = year, y = average_score, color = genre_1)) +
-        geom_point() + 
-        geom_smooth() +
+  output$plotOutputName <- renderPlotly({
+    ggplotly(
+      ggplot(data = tempData(), mapping = aes(x = year, y = average_score, color = genre_1)) +
+        geom_point(alpha=0.6, size=1) + 
+        geom_smooth(se=FALSE) +
         theme_minimal() +
         labs(
           x = "Year",
@@ -73,7 +72,7 @@ server <- function(input, output) {
           color = "Gerne",
           title = "The average score per Genre per Year",
           subtitle = "Subtitle")
-  })
+  )})
 }
 
 shinyApp(ui = ui, server = server)
