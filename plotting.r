@@ -1,8 +1,10 @@
 library(shiny)
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
+library(plotly)
 
-dataIMDB <- read_csv("C:\\Users\\Lianne\\Documents\\IIV project\\dataPreprocessed.csv")
+dataIMDB <- read_csv("D:\\Google Drive\\Uni\\Tilburg\\Semester 6\\Interactive Information Visualization\\Group Project\\dataPreprocessed.csv")
 
 dataIMBDclean <- na.omit(dataIMDB)
 
@@ -25,7 +27,6 @@ ui <- fluidPage(
                                         "Animation",
                                         "Biography",
                                         "Comedy",
-                                        "Documentary",
                                         "Drama",
                                         "Family",
                                         "Fantasy",
@@ -40,8 +41,13 @@ ui <- fluidPage(
                                         "Thriller",
                                         "War",
                                         "Western"),
-                         selected = "Action")
-    ),
+                         selected = "Action"),
+      
+      sliderInput("range", 
+                  label = "Choose a start and end year:",
+                  min = min(averageYearGenre_1$year), max = max(averageYearGenre_1$year), value = c(min(averageYearGenre_1$year), max(averageYearGenre_1$year)), sep = "",)
+      ),
+    
     
     # Show a plot of the generated distribution
     mainPanel(
@@ -51,9 +57,15 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  
+  tempData <- reactive({
+    filter(averageYearGenre_1, genre_1 %in% input$genresGroup & year >= input$range[1] & year <= input$range[2])
+  })
+  
   output$plotOutputName <- renderPlot({
-    plotThing %>% ggplot(data = averageYearGenre_1, mapping = aes(x = year, y = average_score, color = genre_1)) +
-        geom_line() + 
+    plotThing %>% ggplot(data = tempData(), mapping = aes(x = year, y = average_score, color = genre_1)) +
+        geom_point() + 
+        geom_smooth() +
         theme_minimal() +
         labs(
           x = "Year",
@@ -61,7 +73,6 @@ server <- function(input, output) {
           color = "Gerne",
           title = "The average score per Genre per Year",
           subtitle = "Subtitle")
-          ggplotly(Interactive_plotOutputName)
   })
 }
 
